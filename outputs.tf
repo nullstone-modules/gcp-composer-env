@@ -28,6 +28,11 @@ output "dag_gcs_prefix" {
   description = "string ||| The GCS path (gs://<bucket>/dags) where DAGs are uploaded for this environment."
 }
 
+output "dag_gcs_bucket" {
+  value       = local.dag_gcs_bucket
+  description = "string ||| The name of the Composer-managed GCS bucket that holds this environment's DAGs."
+}
+
 output "gke_cluster" {
   value       = google_composer_environment.this.config[0].gke_cluster
   description = "string ||| The GKE cluster that backs this Cloud Composer environment."
@@ -89,6 +94,16 @@ output "deployer" {
     impersonate = true
   }
   description = "object({ email: string, impersonate: bool }) ||| A GCP service account with explicit privilege to deploy DAGs to this Cloud Composer environment."
+}
+
+output "image_pusher" {
+  value = {
+    project_id  = local.project_id
+    email       = google_service_account.image_pusher.email
+    id          = google_service_account.image_pusher.id
+    impersonate = true
+  }
+  description = "object({ email: string, impersonate: bool }) ||| A GCP service account that can sync DAG files to the Composer environment's GCS bucket."
 }
 
 output "service_name" {

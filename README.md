@@ -15,8 +15,11 @@ Nullstone app module that provisions a [Google Cloud Composer](https://cloud.goo
   bindings (e.g. `secretmanager.secretAccessor`, `bigquery.dataEditor`) target
   this SA so DAGs inherit those grants. Granted `roles/composer.worker`.
 - A **deployer service account** (impersonated by the Nullstone agent) with
-  `roles/composer.environmentAndStorageObjectAdmin` to upload DAGs to the
-  environment's GCS bucket and read environment config.
+  `roles/composer.environmentAndStorageObjectAdmin` to manage the environment and
+  read its config.
+- A **pusher service account** (impersonated by the Nullstone agent) with
+  `roles/storage.objectAdmin` on the environment's DAG bucket, used to sync DAG
+  files to `gs://<bucket>/dags`.
 - A **log reader service account** with `roles/logging.viewer`.
 - IAM for the Cloud Composer service agent (`roles/composer.ServiceAgentV2Ext`),
   required for environments that run as a user-managed service account.
@@ -33,9 +36,10 @@ Nullstone app module that provisions a [Google Cloud Composer](https://cloud.goo
 
 ## Deployment model
 
-Composer apps are deployed by uploading DAG files to the environment's GCS bucket
-(`dag_gcs_prefix`, e.g. `gs://<bucket>/dags`). The `deployer` service account has
-the permissions required to do this.
+Composer apps are deployed by syncing DAG files to the environment's GCS bucket
+(`dag_gcs_prefix`, e.g. `gs://<bucket>/dags`). The `image_pusher` service account
+has `storage.objectAdmin` on that bucket to perform the sync, and the `deployer`
+service account manages the environment itself.
 
 ## Connections
 
