@@ -37,8 +37,8 @@ Nullstone app module that provisions a [Google Cloud Composer](https://cloud.goo
 ## Deployment model
 
 Composer apps are deployed by syncing DAG files to the environment's GCS bucket
-(`dag_gcs_prefix`, e.g. `gs://<bucket>/dags`). The `image_pusher` service account
-has `storage.objectAdmin` on that bucket to perform the sync, and the `deployer`
+(`dag_gcs_prefix`, e.g. `gs://<bucket>/dags`). The `pusher` service account has
+`storage.objectAdmin` on that bucket to perform the sync, and the `deployer`
 service account manages the environment itself.
 
 ## Connections

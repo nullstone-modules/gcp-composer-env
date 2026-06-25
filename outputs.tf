@@ -96,11 +96,11 @@ output "deployer" {
   description = "object({ email: string, impersonate: bool }) ||| A GCP service account with explicit privilege to deploy DAGs to this Cloud Composer environment."
 }
 
-output "image_pusher" {
+output "pusher" {
   value = {
     project_id  = local.project_id
-    email       = google_service_account.image_pusher.email
-    id          = google_service_account.image_pusher.id
+    email       = google_service_account.pusher.email
+    id          = google_service_account.pusher.id
     impersonate = true
   }
   description = "object({ email: string, impersonate: bool }) ||| A GCP service account that can sync DAG files to the Composer environment's GCS bucket."
