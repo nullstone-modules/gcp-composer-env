@@ -1,0 +1,16 @@
+org_name: nullstone
+name: gcp-composer-env
+friendly_name: Cloud Composer Environment
+description: Creates a Google Cloud Composer (managed Apache Airflow) environment
+category: app
+subcategory: serverless
+provider_types:
+    - gcp
+platform: composer
+subplatform: ""
+type: ""
+appCategories: []
+is_public: true
+tool_name: opentofu
+include: []
+source_url: https://github.com/nullstone-modules/gcp-composer-env
