@@ -29,7 +29,7 @@ resource "google_composer_environment" "this" {
 
     software_config {
       image_version            = var.image_version
-      env_variables            = local.all_env_vars
+      env_variables            = local.composer_env_variables
       airflow_config_overrides = local.airflow_config_overrides
       pypi_packages            = var.pypi_packages
     }

@@ -46,8 +46,10 @@ locals {
     NULLSTONE_VERSION    = data.ns_app_env.this.version
     NULLSTONE_COMMIT_SHA = data.ns_app_env.this.commit_sha
   })
+  // NOTE: GOOGLE_CLOUD_PROJECT is reserved — Cloud Composer injects it into the
+  // runtime automatically and rejects any attempt to override it. Do not add it
+  // here (see local.reserved_env_var_names below for the full denylist).
   google_env_vars = tomap({
-    GOOGLE_CLOUD_PROJECT         = local.project_id
     GOOGLE_CLOUD_REGION          = local.region
     GOOGLE_CLOUD_PROJECT_NUMBER  = local.project_number
     GOOGLE_SERVICE_ACCOUNT_EMAIL = google_service_account.app.email
@@ -79,6 +81,35 @@ locals {
   // all_env_vars contains all environment variables excluding those detected as secrets
   // This is a map of name => value
   all_env_vars = data.ns_env_variables.this.env_variables
+
+  // Cloud Composer reserves a set of environment variable names that it manages
+  // itself and rejects on the API. Strip any colliding names (from standard,
+  // google, user, or capability sources) so a single reserved key cannot fail
+  // the whole environment apply. List per the Composer 3 docs:
+  // https://cloud.google.com/composer/docs/composer-3/set-environment-variables
+  reserved_env_var_names = toset([
+    "AIRFLOW_DATABASE_VERSION", "AIRFLOW_HOME", "AIRFLOW_SRC_DIR", "AIRFLOW_WEBSERVER",
+    "AUTO_GKE", "CLOUDSDK_METRICS_ENVIRONMENT", "CLOUD_LOGGING_ONLY",
+    "COMPOSER_AGENT_BUILD_SERVICE_ACCOUNT", "COMPOSER_ENVIRONMENT", "COMPOSER_ENVIRONMENT_SIZE",
+    "COMPOSER_GKE_LOCATION", "COMPOSER_GKE_NAME", "COMPOSER_GKE_ZONE", "COMPOSER_LOCATION",
+    "COMPOSER_OPERATION_UUID", "COMPOSER_PYTHON_VERSION", "COMPOSER_VERSION",
+    "CONTAINER_NAME", "C_FORCE_ROOT", "DAGS_FOLDER", "GCE_METADATA_TIMEOUT",
+    "GCP_PROJECT", "GCP_TENANT_PROJECT", "GCSFUSE_EXTRACTED", "GCS_BUCKET",
+    "GKE_CLUSTER_NAME", "GKE_IN_TENANT", "GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_CLOUD_PROJECT",
+    "MAJOR_VERSION", "MINOR_VERSION", "PATH", "PIP_DISABLE_PIP_VERSION_CHECK", "PORT",
+    "PROJECT_ID", "PYTHONPYCACHEPREFIX", "PYTHONWARNINGS", "REDIS_PASSWORD", "REDIS_PORT",
+    "REDIS_USER", "SQL_DATABASE", "SQL_HOST", "SQL_INSTANCE", "SQL_PASSWORD", "SQL_PROJECT",
+    "SQL_REGION", "SQL_USER",
+  ])
+  // Composer also rejects Airflow config-style overrides (AIRFLOW__<SECTION>__<KEY>)
+  // as env vars; those belong in var.airflow_config_overrides instead.
+  reserved_env_var_prefixes = ["AIRFLOW__"]
+
+  // composer_env_variables is the safe subset passed to software_config.env_variables.
+  composer_env_variables = {
+    for k, v in local.all_env_vars : k => v
+    if !contains(local.reserved_env_var_names, k) && length([for p in local.reserved_env_var_prefixes : true if startswith(k, p)]) == 0
+  }
 
   // unmanaged_secret_keys are secrets that are not managed by this module
   // This is a list of string for all references where a user specified {{ secret(...) }}
