@@ -22,6 +22,11 @@ resource "google_composer_environment" "this" {
   config {
     environment_size = var.environment_size
 
+    # Private networking: no public IPs. Composer 3 reaches the connected VPC
+    # through a Private Service Connect network attachment that it auto-creates
+    # from the network + subnetwork below.
+    enable_private_environment = var.enable_private_environment
+
     software_config {
       image_version            = var.image_version
       env_variables            = local.all_env_vars

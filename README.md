@@ -8,9 +8,9 @@ Nullstone app module that provisions a [Google Cloud Composer](https://cloud.goo
 
 ## What it creates
 
-- A **Cloud Composer 2 environment** (`google_composer_environment`) wired into the
-  connected VPC/subnetwork, with configurable size, Airflow image version, PyPI
-  packages, and Airflow config overrides.
+- A **Cloud Composer 3 environment** (`google_composer_environment`), private by
+  default, with configurable size, Airflow image version, PyPI packages, and
+  Airflow config overrides.
 - An **app runtime service account** that the environment runs as. Capability
   bindings (e.g. `secretmanager.secretAccessor`, `bigquery.dataEditor`) target
   this SA so DAGs inherit those grants. Granted `roles/composer.worker`.
@@ -23,6 +23,28 @@ Nullstone app module that provisions a [Google Cloud Composer](https://cloud.goo
 - A **log reader service account** with `roles/logging.viewer`.
 - IAM for the Cloud Composer service agent (`roles/composer.ServiceAgentV2Ext`),
   required for environments that run as a user-managed service account.
+
+## Networking & internal access
+
+The environment is **private by default** (`enable_private_environment = true`)
+and reaches the connected VPC through a Composer 3 Private Service Connect
+network attachment, auto-created from the network connection's VPC and private
+subnetwork. Because the environment sits on the private network, DAGs can reach:
+
+- **Internal Kubernetes services** on the cluster — via internal load balancers /
+  internal ingress published on the same VPC.
+- **A Cloud SQL Postgres instance** — via its private IP / the network's Private
+  Service Access range. The app runtime SA is granted `roles/cloudsql.client` so
+  DAGs can open connections through the Cloud SQL connector / IAM auth; database
+  credentials are injected by an attached `gcp-postgres-access` capability.
+
+Internet egress (e.g. for `pip` installs of `pypi_packages`) flows through the
+network's Cloud NAT.
+
+> Note: this gives DAGs network access to internal *service endpoints*. Driving
+> the Kubernetes API itself (e.g. `KubernetesPodOperator` against the cluster)
+> additionally requires a cluster connection and `container`-level IAM — open an
+> issue / extend the module if you need that.
 
 ## Environment variables & secrets
 

@@ -1,10 +1,21 @@
 variable "image_version" {
   type        = string
-  default     = "composer-2-airflow-2"
+  default     = "composer-3-airflow-2"
   description = <<EOF
 The version of the Composer/Airflow image to run.
-Use an alias such as "composer-2-airflow-2" to track the latest patch, or pin a
-specific build like "composer-2.10.5-airflow-2.10.5".
+Defaults to Cloud Composer 3. Use an alias such as "composer-3-airflow-2" to
+track the latest patch, or pin a specific build like "composer-3-airflow-2.10.5".
+EOF
+}
+
+variable "enable_private_environment" {
+  type        = bool
+  default     = true
+  description = <<EOF
+When true (the default), the Composer environment is private: it has no public
+IPs and reaches the connected VPC through a Private Service Connect network
+attachment. This is what lets DAGs reach internal services (e.g. internal
+Kubernetes load balancers and a Cloud SQL Postgres private IP) on the network.
 EOF
 }
 
