@@ -46,10 +46,12 @@ locals {
     NULLSTONE_VERSION    = data.ns_app_env.this.version
     NULLSTONE_COMMIT_SHA = data.ns_app_env.this.commit_sha
   })
-  // NOTE: GOOGLE_CLOUD_PROJECT is reserved — Cloud Composer injects it into the
-  // runtime automatically and rejects any attempt to override it. Do not add it
-  // here (see local.reserved_env_var_names below for the full denylist).
+  // GOOGLE_CLOUD_PROJECT is kept here so it is available in the interpolation
+  // context (other env vars / capabilities can reference it). It is reserved by
+  // Cloud Composer and stripped from the map passed to the environment resource
+  // via local.reserved_env_var_names below — Composer injects it at runtime.
   google_env_vars = tomap({
+    GOOGLE_CLOUD_PROJECT         = local.project_id
     GOOGLE_CLOUD_REGION          = local.region
     GOOGLE_CLOUD_PROJECT_NUMBER  = local.project_number
     GOOGLE_SERVICE_ACCOUNT_EMAIL = google_service_account.app.email
