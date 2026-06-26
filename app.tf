@@ -10,11 +10,14 @@ locals {
 }
 
 locals {
+  // NOTE: app_metadata is consumed by capability modules, whose outputs (env
+  // vars / secrets) feed back into the Composer environment. It must therefore
+  // only reference values that do NOT depend on google_composer_environment.this
+  // (e.g. the app SA + pure locals), otherwise Terraform reports a dependency
+  // cycle. Do not add dag_gcs_prefix / airflow_uri / other environment outputs.
   app_metadata = tomap({
-    // Inject app metadata into capabilities here (e.g. service_account_id)
     service_account_id    = google_service_account.app.id
     service_account_email = google_service_account.app.email
     environment_name      = local.environment_name
-    dag_gcs_prefix        = google_composer_environment.this.config[0].dag_gcs_prefix
   })
 }
