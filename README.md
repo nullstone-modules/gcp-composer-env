@@ -3,7 +3,7 @@
 Nullstone app module that provisions a [Google Cloud Composer](https://cloud.google.com/composer)
 (managed Apache Airflow) environment.
 
-- **Contract:** `app:serverless/gcp:composer`
+- **Contract:** `app:serverless/gcp/composer`
 - **Tool:** OpenTofu
 
 ## What it creates
@@ -65,6 +65,6 @@ service account manages the environment itself.
 
 ## Connections
 
-| Name    | Contract          | Purpose                                   |
-|---------|-------------------|-------------------------------------------|
+| Name    | Contract          | Purpose                                      |
+|---------|-------------------|----------------------------------------------|
 | network | `network/gcp/vpc` | VPC + private subnetwork for the environment |
