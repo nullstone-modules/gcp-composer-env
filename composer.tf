@@ -12,6 +12,8 @@ resource "google_project_iam_member" "composer_agent_v2_ext" {
   project = local.project_id
   role    = "roles/composer.ServiceAgentV2Ext"
   member  = local.composer_service_agent
+
+  depends_on = [google_project_service.composer_api]
 }
 
 resource "google_composer_environment" "this" {

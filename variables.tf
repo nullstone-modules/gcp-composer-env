@@ -56,7 +56,7 @@ variable "scheduler" {
   })
   default = {
     cpu        = 0.5
-    memory_gb  = 1.875
+    memory_gb  = 2
     storage_gb = 1
     count      = 1
   }
@@ -71,7 +71,7 @@ variable "web_server" {
   })
   default = {
     cpu        = 0.5
-    memory_gb  = 1.875
+    memory_gb  = 2
     storage_gb = 1
   }
   description = "Resource allocation for the Airflow web server."
@@ -87,7 +87,7 @@ variable "worker" {
   })
   default = {
     cpu        = 0.5
-    memory_gb  = 1.875
+    memory_gb  = 2
     storage_gb = 1
     min_count  = 1
     max_count  = 3
