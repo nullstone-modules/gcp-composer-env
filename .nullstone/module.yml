@@ -4,6 +4,7 @@ friendly_name: Cloud Composer Environment
 description: Creates a Google Cloud Composer (managed Apache Airflow) environment
 category: app
 subcategory: serverless
+app_type: generic
 provider_types:
     - gcp
 platform: composer
